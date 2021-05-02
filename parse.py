@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import re
 
 URL = 'https://belgorod.ml-respect.ru/car/kia/'
 HEADERS = {
@@ -13,8 +14,16 @@ def get_html(url, params=None):  # parse all pages
 
 def get_content(html):
     soup = BeautifulSoup(html,'html.parser')
-    items = soup.find_all('div', class_='box-title')
-    print(items)
+    items = soup.find_all('div', class_='card-row--inner')
+    cars = []
+    for item in items:
+        cars.append({
+            'title': item.find('div', class_='box-title').get_text(strip=True),
+            #'link': item.find('a', class_='box-title', href = re.compile(r'[/]([a-z]|[A-Z])\w+')).attrs['href'],
+            'link': item.find('a',class_='box-images transparent',href=True).get("href"),
+            'price': item.find('div', class_='new-price').get_text(),
+        })
+    print(cars)
 
 
 def parse():
